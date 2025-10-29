@@ -13,6 +13,8 @@ import SignIn from "./pages/SignIn";
 import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
+import Page from "./pages/todos";
+
 
 const queryClient = new QueryClient();
 
@@ -69,6 +71,7 @@ const App = () => (
             />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
+            <Route path="/todos" element={<Page />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
