@@ -9,6 +9,10 @@ interface Profile {
   created_at: string;
 }
 
+interface UserRole {
+  role: 'user' | 'admin';
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -38,12 +42,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [userRole, setUserRole] = useState<'user' | 'admin' | null>(null);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
     try {
-      // Fetch profile
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -57,7 +60,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       setProfile(profileData as Profile);
 
-      // Fetch user role from user_roles table
+      // Fetch user role from secure user_roles table
       const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
         .select('role')
@@ -65,11 +68,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         .maybeSingle();
 
       if (roleError) {
-        console.error('Error fetching user role:', roleError);
+        console.error('Error fetching role:', roleError);
         return;
       }
 
-      setUserRole(roleData?.role || 'user');
+      setUserRole(roleData as UserRole);
     } catch (error) {
       console.error('Error fetching profile:', error);
     }
@@ -138,7 +141,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     await supabase.auth.signOut();
   };
 
-  const isAdmin = userRole === 'admin';
+  const isAdmin = userRole?.role === 'admin';
 
   const value = {
     user,
