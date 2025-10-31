@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 const Header = () => {
   const { toast } = useToast();
-  const { user, profile, signOut, loading } = useAuth();
+  const { user, isAdmin, signOut, loading } = useAuth();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -47,7 +47,7 @@ const Header = () => {
           ) : user ? (
             <div className="flex items-center space-x-4">
               <Button asChild variant="outline">
-                <Link to={profile?.role === 'admin' ? '/admin-dashboard' : '/dashboard'}>
+                <Link to={isAdmin ? '/admin-dashboard' : '/dashboard'}>
                   <User className="mr-2 h-4 w-4" />
                   Dashboard
                 </Link>

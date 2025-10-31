@@ -6,8 +6,11 @@ interface Profile {
   id: string;
   full_name: string | null;
   email: string;
-  role: 'user' | 'admin';
   created_at: string;
+}
+
+interface UserRole {
+  role: 'user' | 'admin';
 }
 
 interface AuthContextType {
@@ -39,22 +42,38 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      // Fetch profile
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle();
 
-      if (error) {
-        console.error('Error fetching profile:', error);
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
         return;
       }
 
-      setProfile(data as Profile);
+      setProfile(profileData as Profile);
+
+      // Fetch user role from user_roles table
+      const { data: roleData, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (roleError) {
+        console.error('Error fetching user role:', roleError);
+        return;
+      }
+
+      setUserRole(roleData as UserRole);
     } catch (error) {
       console.error('Error fetching profile:', error);
     }
@@ -73,6 +92,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           }, 0);
         } else {
           setProfile(null);
+          setUserRole(null);
         }
         
         setLoading(false);
@@ -122,7 +142,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     await supabase.auth.signOut();
   };
 
-  const isAdmin = profile?.role === 'admin';
+  const isAdmin = userRole?.role === 'admin';
 
   const value = {
     user,
