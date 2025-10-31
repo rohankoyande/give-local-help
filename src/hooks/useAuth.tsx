@@ -9,10 +9,6 @@ interface Profile {
   created_at: string;
 }
 
-interface UserRole {
-  role: 'user' | 'admin';
-}
-
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -42,7 +38,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const [userRole, setUserRole] = useState<'user' | 'admin' | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
@@ -73,7 +69,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return;
       }
 
-      setUserRole(roleData as UserRole);
+      setUserRole(roleData?.role || 'user');
     } catch (error) {
       console.error('Error fetching profile:', error);
     }
@@ -142,7 +138,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     await supabase.auth.signOut();
   };
 
-  const isAdmin = userRole?.role === 'admin';
+  const isAdmin = userRole === 'admin';
 
   const value = {
     user,
