@@ -19,7 +19,7 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="space-y-4">
-              <h3 className="font-bold text-lg">LocalGive</h3>
+              <h3 className="font-bold text-lg">Denasetu</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 Connecting communities with local NGOs to create meaningful impact through direct donations.
               </p>
