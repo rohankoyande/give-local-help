@@ -28,6 +28,7 @@ interface DashboardStats {
 
 const AdminDashboard = () => {
   const { profile, loading: authLoading } = useAuth();
+  const { profile, isAdmin } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalNGOs: 0,
     totalUsers: 0,
@@ -44,6 +45,7 @@ const AdminDashboard = () => {
         setLoading(false);
         return;
       }
+      if (!profile?.id || !isAdmin) return;
 
       try {
         // Fetch NGO count
@@ -125,7 +127,7 @@ const AdminDashboard = () => {
     };
 
     fetchAdminData();
-  }, [profile?.id, profile?.role]);
+  }, [profile?.id, isAdmin]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -149,6 +151,7 @@ const AdminDashboard = () => {
   }
 
   if (profile?.role !== 'admin') {
+  if (!isAdmin) {
     return (
       <div className="min-h-screen bg-gradient-subtle">
         <Header />
