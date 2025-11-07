@@ -40,8 +40,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [lastFetchedUserId, setLastFetchedUserId] = useState<string | null>(null);
 
   const fetchProfile = async (userId: string) => {
+    if (!userId) return;
+    if (lastFetchedUserId === userId) return;
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -51,12 +54,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (error) {
         console.error('Error fetching profile:', error);
+        // Stop further retries on server-side policy errors (e.g., 42P17)
+        setLastFetchedUserId(userId);
         return;
       }
 
       setProfile(data as Profile);
+      setLastFetchedUserId(userId);
     } catch (error) {
       console.error('Error fetching profile:', error);
+      setLastFetchedUserId(userId);
     }
   };
 
@@ -68,11 +75,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          setTimeout(() => {
-            fetchProfile(session.user.id);
-          }, 0);
+          fetchProfile(session.user.id);
         } else {
           setProfile(null);
+          setLastFetchedUserId(null);
         }
         
         setLoading(false);

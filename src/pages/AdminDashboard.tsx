@@ -27,7 +27,7 @@ interface DashboardStats {
 }
 
 const AdminDashboard = () => {
-  const { profile } = useAuth();
+  const { profile, loading: authLoading } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalNGOs: 0,
     totalUsers: 0,
@@ -40,7 +40,10 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const fetchAdminData = async () => {
-      if (!profile?.id || profile.role !== 'admin') return;
+      if (!profile?.id || profile.role !== 'admin') {
+        setLoading(false);
+        return;
+      }
 
       try {
         // Fetch NGO count
@@ -131,6 +134,19 @@ const AdminDashboard = () => {
       maximumFractionDigits: 0,
     }).format(amount);
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle">
+        <Header />
+        <div className="container mx-auto px-4 py-16">
+          <div className="text-center">
+            <div className="animate-pulse">Loading admin dashboard...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (profile?.role !== 'admin') {
     return (
